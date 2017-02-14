@@ -45,8 +45,15 @@ Ball.prototype.move = function() {
     this.dx = -(this.dx);
   }
 
-  if(this.y + this.dy > this.board.canvas.height - this.radius || this.y + this.dy < this.radius) {
+  if(this.y + this.dy < this.radius) {
     this.dy =  -(this.dy);
+  }else if(this.y + this.dy > this.board.canvas.height - this.radius) {
+    if(this.x > this.board.paddle.x && this.x < this.board.paddle.x + this.board.paddle.width) {
+      this.dy = -(this.dy);
+    } else {
+      alert("Game Over");
+      document.location.reload();
+    }
   }
 
   this.x += this.dx;
