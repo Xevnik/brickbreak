@@ -1,26 +1,22 @@
 function GameBoard() {
   this.canvas = document.getElementById("gameBoard");
   this.ctx = this.canvas.getContext("2d");
-  this.paddle;
-  this.ball;
+  this.paddle = null;
+  this.ball = null;
   this.bricks = [];
 }
+
 GameBoard.prototype.drawAll = function() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ball.draw();
+    this.paddle.draw();
 };
-GameBoard.prototype.initialize = function () {
-    this.ball = new Ball(this);
 
-};
 GameBoard.prototype.start = function() {
+    this.ball = new Ball(this);
+    this.paddle = new Paddle(this);
     setInterval(this.drawAll.bind(this), 10);
 };
-
-
-
-
-
 
 function Ball(GameBoard) {
   this.board = GameBoard;
@@ -57,17 +53,64 @@ Ball.prototype.move = function() {
   this.y += this.dy;
 };
 
-function Paddle() {
+function Paddle(gameBoard) {
+  this.board = gameBoard;
+  this.height = 10;
+  this.width = 75;
+  this.x = (this.board.canvas.width - this.width) / 2;
+  this.color = "#0095DD";
+  this.dx = 7;
+  this.rightPressed = this.leftPressed = false;
 
 }
+
+Paddle.prototype.draw = function() {
+  this.board.ctx.beginPath();
+  this.board.ctx.rect(this.x, this.board.canvas.height-this.height, this.width, this.height);
+  this.board.ctx.fillStyle = this.color;
+  this.board.ctx.fill();
+  this.board.ctx.closePath();
+  this.move();
+};
+
+Paddle.prototype.move = function() {
+  //go right
+  if (this.rightPressed && this.x < (this.board.canvas.width - this.width)){
+    this.x += this.dx;
+  }
+  //go left
+  if (this.leftPressed && this.x > 0){
+    this.x -= this.dx;
+  }
+};
+
+
 
 function Brick() {
 
 }
 
 var game;
+
+function keyDownHandler(e) {
+  if(e.keyCode == 39) {
+    game.paddle.rightPressed = true;
+  }else if(e.keyCode == 37) {
+    game.paddle.leftPressed = true;
+  }
+}
+
+function keyUpHandler(e) {
+  if(e.keyCode == 39) {
+    game.paddle.rightPressed = false;
+  }else if(e.keyCode == 37) {
+    game.paddle.leftPressed = false;
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function(event) {
   game = new GameBoard();
-  game.initialize();
   game.start();
+  document.addEventListener('keydown', keyDownHandler, false);
+  document.addEventListener('keyup', keyUpHandler, false);
 });
