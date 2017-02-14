@@ -141,7 +141,7 @@ Brick.prototype.detectCollision = function() {
     var brick = this;
     if (!brick.hit) {
         if ((ball.x > brick.x) && (ball.x < brick.x + brick.width) && (ball.y > brick.y) && (ball.y < brick.y + brick.height)) {
-            ball.dy = -(ball.dy+1);
+            ball.dy = -(ball.dy + 1);
             brick.hit = true;
         }
     }
