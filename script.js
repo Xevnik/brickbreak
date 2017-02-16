@@ -1,41 +1,48 @@
 function GameBoard() {
-    this.canvas = document.getElementById("gameBoard");
-    this.ctx = this.canvas.getContext("2d");
-    this.paddle = null;
-    this.ball = null;
-    this.brickRowCount = 6;
-    this.brickColCount = 5;
-    this.bricks = [];
-}
-GameBoard.prototype.createBricks = function() {
-    var self = this;
-    var brick;
-    for (var r = 0; r < this.brickRowCount; r++) {
-        for (var c = 0; c < this.brickColCount; c++) {
-            brick = new Brick(self);
-            brick.x = (r * (brick.width + brick.padding) + brick.offsetLeft);
-            brick.y = (c * (brick.height + brick.padding) + brick.offsetTop);
-            self.bricks.push(brick);
+    var board = this;
+    board.canvas = document.getElementById("gameBoard");
+    board.ctx = board.canvas.getContext("2d");
+    board.paddle = null;
+    board.ball = null;
+    board.brickRowCount = 6;
+    board.brickColCount = 5;
+    board.bricks = [];
+    //creates bricks and sets their location
+    board.createBricks = function() {
+        var brick;
+        for (var r = 0; r < board.brickRowCount; r++) {
+            for (var c = 0; c < board.brickColCount; c++) {
+                brick = new Brick(board);
+                brick.x = (r * (brick.width + brick.padding) + brick.offsetLeft);
+                brick.y = (c * (brick.height + brick.padding) + brick.offsetTop);
+                board.bricks.push(brick);
+            }
         }
-    }
-};
+    };
 
-GameBoard.prototype.drawAll = function() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ball.draw();
-    this.paddle.draw();
-    this.bricks.forEach(function(brick, i) {
-        brick.detectCollision();
-        brick.draw();
-    });
-};
+    board.drawAll = function() {
+        board.ctx.clearRect(0, 0, board.canvas.width, board.canvas.height);
+        board.ball.draw();
+        board.paddle.draw();
+        board.bricks.forEach(function(brick, i) {
+            brick.detectCollision();
+            brick.draw();
+        });
 
-GameBoard.prototype.start = function() {
-    this.ball = new Ball(this);
-    this.paddle = new Paddle(this);
-    this.createBricks();
-    setInterval(this.drawAll.bind(this), 10);
-};
+        requestAnimationFrame(board.drawAll);
+    };
+
+    board.start = function() {
+        board.ball = new Ball(board);
+        board.paddle = new Paddle(board);
+        board.createBricks();
+        board.drawAll();
+    };
+}
+
+
+
+
 
 function Ball(GameBoard) {
     this.board = GameBoard;
@@ -70,7 +77,6 @@ Ball.prototype.move = function() {
         if (this.x > this.board.paddle.x && this.x < this.board.paddle.x + this.board.paddle.width) {
             this.dy = -(this.dy);
         } else {
-            alert("Game Over");
             document.location.reload();
         }
     }
@@ -140,7 +146,7 @@ Brick.prototype.detectCollision = function() {
     var ball = this.board.ball;
     var brick = this;
     if (!brick.hit) {
-        if ((ball.x > brick.x) && (ball.x < brick.x + brick.width) && (ball.y > brick.y) && (ball.y < brick.y + brick.height)) {
+        if ((ball.x >= brick.x) && (ball.x <= brick.x + brick.width) && (ball.y > brick.y) && (ball.y < brick.y + brick.height)) {
             ball.dy = -(ball.dy + 1);
             brick.hit = true;
         }
