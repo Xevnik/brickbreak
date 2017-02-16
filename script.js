@@ -40,10 +40,6 @@ function GameBoard() {
     };
 }
 
-
-
-
-
 function Ball(GameBoard) {
     this.board = GameBoard;
     //Ball starting positiion
@@ -66,16 +62,42 @@ Ball.prototype.draw = function() {
     this.move();
 };
 
-Ball.prototype.move = function() {
-    if (this.x + this.dx > this.board.canvas.width - this.radius || this.x + this.dx < this.radius) {
-        this.dx = -(this.dx);
+Ball.prototype.changeVelocityX = function(velocity) {
+    if (velocity === 'reverse') {
+        this.dx = -this.dx;
+    } else if (this.dx < 0) {
+        this.dx -= velocity;
+    } else {
+        this.dx += velocity;
     }
+};
 
+Ball.prototype.changeVelocityY = function(velocity) {
+    if (velocity === 'reverse') {
+        this.dy = -this.dy;
+    } else if (this.dy < 0) {
+        this.dy -= velocity;
+    } else {
+        this.dy += velocity;
+    }
+};
+
+/**
+ * Move Ball by incrementing X- & Y-coordinates by dx & dy
+ **/
+Ball.prototype.move = function() {
+    //Detects collision of left/right wall
+    if (this.x + this.dx > this.board.canvas.width - this.radius || this.x + this.dx < this.radius) {
+        this.changeVelocityX('reverse');
+    }
+    //Detects collision of top wall
     if (this.y + this.dy < this.radius) {
-        this.dy = -(this.dy);
+        this.changeVelocityY('reverse');
+        //Ball will be placed beyond bottom wall
     } else if (this.y + this.dy > this.board.canvas.height - this.radius) {
-        if (this.x > this.board.paddle.x && this.x < this.board.paddle.x + this.board.paddle.width) {
-            this.dy = -(this.dy);
+        if (this.x >= this.board.paddle.x && this.x <= (this.board.paddle.x + this.board.paddle.width)) {
+            this.changeVelocityY('reverse');
+            this.changeVelocityY(0.15);
         } else {
             document.location.reload();
         }
@@ -102,6 +124,7 @@ Paddle.prototype.draw = function() {
     this.board.ctx.fillStyle = this.color;
     this.board.ctx.fill();
     this.board.ctx.closePath();
+
     this.move();
 };
 
@@ -147,7 +170,7 @@ Brick.prototype.detectCollision = function() {
     var brick = this;
     if (!brick.hit) {
         if ((ball.x >= brick.x) && (ball.x <= brick.x + brick.width) && (ball.y > brick.y) && (ball.y < brick.y + brick.height)) {
-            ball.dy = -(ball.dy + 1);
+            ball.dy = -(ball.dy);
             brick.hit = true;
         }
     }
