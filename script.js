@@ -1,5 +1,6 @@
 function GameBoard() {
     var board = this;
+    var score = 0;
     board.canvas = document.getElementById("gameBoard");
     board.ctx = board.canvas.getContext("2d");
     board.paddle = null;
@@ -7,6 +8,17 @@ function GameBoard() {
     board.brickRowCount = 6;
     board.brickColCount = 5;
     board.bricks = [];
+    board.getScore = function () {
+      return score;
+    };
+    board.increaseScore = function () {
+      score++;
+    };
+    board.drawScore = function () {
+      board.ctx.font = "16px Arial";
+      board.ctx.fillStyle = "0095DD";
+      board.ctx.fillText("Score: " + board.getScore(), 8, 20);
+    };
     //creates bricks and sets their location
     board.createBricks = function() {
         var brick;
@@ -22,10 +34,11 @@ function GameBoard() {
 
     board.drawAll = function() {
         board.ctx.clearRect(0, 0, board.canvas.width, board.canvas.height);
+        board.drawScore();
         board.ball.draw();
         board.paddle.draw();
         board.bricks.forEach(function(brick, i) {
-            brick.detectCollision();
+            brick.detectCollision(board);
             brick.draw();
         });
 
@@ -165,13 +178,14 @@ Brick.prototype.draw = function() {
     this.board.ctx.closePath();
 };
 
-Brick.prototype.detectCollision = function() {
+Brick.prototype.detectCollision = function(board) {
     var ball = this.board.ball;
     var brick = this;
     if (!brick.hit) {
         if ((ball.x >= brick.x) && (ball.x <= brick.x + brick.width) && (ball.y > brick.y) && (ball.y < brick.y + brick.height)) {
             ball.dy = -(ball.dy);
             brick.hit = true;
+            board.increaseScore();
         }
     }
 };
